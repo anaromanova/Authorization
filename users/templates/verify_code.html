@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Верификация кода</title>
+</head>
+<body>
+  <h1>Верификация SMS-кода</h1>
+  <form id="verify-form">
+    <label>Телефон: <input type="text" id="phone" placeholder="+70000000000" required></label><br>
+    <label>Код: <input type="text" id="code" placeholder="1234" required></label><br>
+    <button type="submit">Проверить</button>
+  </form>
+  <pre id="result"></pre>
+
+  <script>
+    document.getElementById('verify-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const phone = document.getElementById('phone').value.trim();
+      const code = document.getElementById('code').value.trim();
+      const res = await fetch('/api/auth/verify-code/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone, code})
+      });
+      const data = await res.json().catch(_=>null);
+      document.getElementById('result').textContent =
+        `Status: ${res.status}\n\n${JSON.stringify(data, null, 2)}`;
+    });
+  </script>
+</body>
+</html>

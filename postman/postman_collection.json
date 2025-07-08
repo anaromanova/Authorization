@@ -1,0 +1,99 @@
+{
+  "info": {
+    "name": "Authorization by Number API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Send Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"phone\": \"+70000000000\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/send-code/"
+        }
+      }
+    },
+    {
+      "name": "Verify Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"phone\": \"+70000000000\", \"code\": \"1234\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/verify-code/"
+        }
+      }
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/"
+        }
+      }
+    },
+    {
+      "name": "Apply Invite Code",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"invite_code\": \"ABC123\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/profile/"
+        }
+      }
+    },
+    {
+      "name": "List Referrals",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/referrals/"
+        }
+      }
+    }
+  ]
+}
