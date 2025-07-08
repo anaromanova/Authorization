@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "authorization-by-number"
+version = "0.1.0"
+description = "Авторизация по номеру и реферальная система"
+authors = ["AnastasiaR anastasia.romanova3169@gmail.com"]
+package-mode = false
+
+
+packages = [
+  #{ include = "config" },
+  #{ include = "users" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^4.2"
+djangorestframework = "^3.15"
+psycopg2-binary = "^2.9"
+drf-spectacular = "^0.28"
+python-dotenv = "^1.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
