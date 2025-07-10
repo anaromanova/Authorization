@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Профиль и рефералы</title>
+</head>
+<body>
+  <h1>Профиль</h1>
+  <p>Токен (из verify_code):</p>
+  <input type="text" id="token" style="width: 400px;" placeholder="Token ..." /><br><br>
+
+  <button id="get-profile">Получить профиль</button>
+  <pre id="profile-result"></pre>
+
+  <h2>Применить реферальный код</h2>
+  <form id="invite-form">
+    <label>Invite code: <input type="text" id="invite_code" placeholder="ABC123" required></label>
+    <button type="submit">Применить</button>
+  </form>
+  <pre id="invite-result"></pre>
+
+  <h2>Список рефералов</h2>
+  <button id="list-referrals">Загрузить рефералов</button>
+  <pre id="referrals-result"></pre>
+
+  <script>
+    function authHeaders() {
+      const t = document.getElementById('token').value.trim();
+      return t ? { 'Content-Type': 'application/json', 'Authorization': 'Token ' + t } : {'Content-Type':'application/json'};
+    }
+
+    document.getElementById('get-profile').addEventListener('click', async () => {
+      const res = await fetch('/api/profile/', {
+        method: 'GET',
+        headers: authHeaders()
+      });
+      const json = await res.json().catch(_=>null);
+      document.getElementById('profile-result').textContent =
+        `Status: ${res.status}\n\n${JSON.stringify(json, null,2)}`;
+    });
+
+    document.getElementById('invite-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const invite_code = document.getElementById('invite_code').value.trim();
+      const res = await fetch('/api/profile/', {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({invite_code})
+      });
+      const json = await res.json().catch(_=>null);
+      document.getElementById('invite-result').textContent =
+        `Status: ${res.status}\n\n${JSON.stringify(json, null,2)}`;
+    });
+
+    document.getElementById('list-referrals').addEventListener('click', async () => {
+      const res = await fetch('/api/profile/referrals/', {
+        method: 'GET',
+        headers: authHeaders()
+      });
+      const json = await res.json().catch(_=>null);
+      document.getElementById('referrals-result').textContent =
+        `Status: ${res.status}\n\n${JSON.stringify(json, null,2)}`;
+    });
+  </script>
+</body>
+</html>
