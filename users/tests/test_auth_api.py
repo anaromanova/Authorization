@@ -11,7 +11,7 @@ class AuthAPITest(APITestCase):
         url = reverse('send_code')
         data = {'phone': '+70000000000'}
         resp = self.client.post(url, data, format='json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Пользователь должен быть создан
         user = User.objects.get(phone='+70000000000')
         self.assertTrue(user)
@@ -28,9 +28,7 @@ class AuthAPITest(APITestCase):
         resp = self.client.post(url, data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn('token', resp.data)
-        # Код помечен как использованный
-        sms.refresh_from_db()
-        self.assertTrue(sms.is_used)
+        self.assertFalse(SMSCode.objects.filter(pk=sms.pk).exists())
 
     def test_verify_code_wrong_or_expired(self):
         user = User.objects.create(phone='+72222222222')

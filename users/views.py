@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from django.utils import timezone
+from random import randint
+import logging
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -8,12 +8,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
+from django.shortcuts import render
+from django.utils import timezone
 
 from .models import SMSCode
+from .services.sms import send_sms_code
 from .serializers import (
     SendCodeSerializer, VerifyCodeSerializer,
     ProfileSerializer, ApplyInviteSerializer
 )
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -29,13 +34,11 @@ class SendCodeView(APIView):
         User = get_user_model()
         user, _ = User.objects.get_or_create(phone=phone)
         # генерируем 4-значный код
-        from random import randint
         code = f"{randint(0,9999):04d}"
         SMSCode.objects.create(user=user, code=code)
-        # эмуляция отправки и задержка
-        # time.sleep(randint(1,2))
-        print(f"[DEBUG] send SMS to {phone}: {code}")
-        return Response({"detail": "Код отправлен"}, status=status.HTTP_200_OK)
+         # отправляем через сервис
+        send_sms_code(phone, code)
+        return Response({"detail": "Код отправлен"}, status=status.HTTP_201_CREATED)
 
 
 class VerifyCodeView(APIView):
@@ -45,37 +48,7 @@ class VerifyCodeView(APIView):
     def post(self, request):
         ser = VerifyCodeSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-
-        phone = ser.validated_data['phone']
-        code  = ser.validated_data['code']
-
-        try:
-            user = User.objects.get(phone=phone)
-        except User.DoesNotExist:
-            return Response(
-                {'detail': 'Пользователь с таким телефоном не найден'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # код жив только 5 минут
-        cutoff = timezone.now() - timezone.timedelta(minutes=5)
-
-        sms_qs = SMSCode.objects.filter(
-            user=user,
-            code=code,
-            is_used=False,
-            created_at__gte=cutoff
-        ).order_by('-created_at')
-
-        if not sms_qs.exists():
-            return Response(
-                {'detail': 'Неверный или просроченный код'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        sms = sms_qs.first()
-        sms.is_used = True
-        sms.save(update_fields=['is_used'])
+        user = ser.validated_data['user']
 
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
@@ -108,7 +81,7 @@ class ReferralsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        phones = [u.phone for u in request.user.referrals.all()]
+        phones = request.user.referrals.values_list('phone', flat=True)
         return Response({"referrals": phones})
 
 

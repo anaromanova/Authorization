@@ -44,7 +44,7 @@ else:
             'NAME': os.getenv('POSTGRES_DB'),
             'USER': os.getenv('POSTGRES_USER'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
+            'HOST': os.getenv('POSTGRES_HOST'),
             'PORT': os.getenv('POSTGRES_PORT'),
         }
     }
@@ -159,3 +159,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 SWAGGER_USE_COMPAT_RENDERERS = False
+
+USE_REAL_SMS_SERVICE = False
